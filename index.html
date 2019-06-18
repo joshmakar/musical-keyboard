@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Musical Keyboard</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script type="text/javascript" src="assets/js/lib/paper-full.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.core.min.js"></script>
+  <script type="text/paperscript" canvas="myCanvas">
+
+    // Create list of sound files
+    var soundFiles = [
+      'bubbles.mp3',
+      'clay.mp3',
+      'confetti.mp3',
+      'corona.mp3',
+      'dotted-spiral.mp3',
+      'flash-1.mp3',
+      'flash-2.mp3',
+      'flash-3.mp3',
+      'glimmer.mp3',
+      'moon.mp3',
+      'pinwheel.mp3',
+      'piston-1.mp3',
+      'piston-2.mp3',
+      'piston-3.mp3',
+      'prism-1.mp3',
+      'prism-2.mp3',
+      'prism-3.mp3',
+      'splits.mp3',
+      'squiggle.mp3',
+      'strike.mp3',
+      'suspension.mp3',
+      'timer.mp3',
+      'ufo.mp3',
+      'veil.mp3',
+      'wipe.mp3',
+      'zig-zag.mp3'
+    ];
+    
+    // Create empty list to push used sound files into
+    var removedSoundFiles = [];
+
+    // Create array to hold circles
+    var circles = [];
+
+    // Establish what keys can be pressed
+    var keys = 'qwertyuiopasdfghjklzxcvbnm';
+
+    // Create object to hold keypress data
+    var keyData = new Object();
+
+    // Loop through keys and populate keyData object
+    for (var i = keys.length - 1; i >= 0; i--) {
+      var randomSoundFile = '';
+      
+      // Assign each sound once.
+      if (soundFiles.length > 0) {
+        randomSoundFile = soundFiles.splice(getRandomInt(soundFiles.length - 1), 1)[0];
+        removedSoundFiles.push(randomSoundFile);
+      } 
+      // Once all sounds used at least once, select random sounds
+      else {
+        randomSoundFile = removedSoundFiles[getRandomInt(removedSoundFiles.length - 1)];
+      }
+
+      // Create key data
+      keyData[keys[i]] = {
+        color: randomColor(),
+        sound: new Howl({
+          src: ['sounds/' + randomSoundFile]
+        })
+      };
+    }
+
+    // Create circle and play sound when key pressed
+    function onKeyDown(event) {
+      if (keyData[event.key]) {
+        var newCircle = new Path.Circle(new Point(getRandomInt(view.size.width), getRandomInt(view.size.height)), getRandomInt(300));
+        newCircle.fillColor = keyData[event.key].color;
+        keyData[event.key].sound.play();
+        circles.push(newCircle);
+      }
+    }
+
+    // Animate circle and remove from circles list
+    function onFrame(event){
+      for(var i = 0; i < circles.length; i++){
+        circles[i].fillColor.hue += 1;
+        circles[i].scale(.9);
+        if(circles[i].area < 1){
+          circles[i].remove(); // Remove circle from canvas
+          circles.splice(i, 1); //Remove circle from array
+        }
+      }
+    }
+
+  </script>
+</head>
+
+<body>
+  <canvas id="myCanvas" resize></canvas>
+</body>
+
+<script type="text/javascript" src="assets/js/script.js"></script>
+
+</html>
